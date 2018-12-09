@@ -1,5 +1,9 @@
 <template>
   <div role="tablist">
+    <h1 v-if="rdt != ''">Rendimiento {{rdt}} Kg/Ha</h1>
+    <br>
+    <br>
+    <br>
     <b-row class="my-1">
       <b-col sm="3">
         <label for="demo">Seleccionar demo</label>
@@ -1026,16 +1030,18 @@
       </b-collapse>
     </b-card>
     
-    <b-button align="right" size="link"> Optimizar  </b-button>
+    <b-button v-on:click="onSubmit" align="right" size="link"> Optimizar  </b-button>
   </div>
 </template>
 
 <script>
+  import axios from 'axios'
   import demoSrvc from '../demo/demoSrvc.js'
 
   export default {
     data () {
       return {
+        rdt : "",
         seedtime : '',
         harvesttime : '',
         form: {
@@ -1391,8 +1397,139 @@
       },
       onSubmit (evt) {
         evt.preventDefault();
-        alert(JSON.stringify(this.form));
+        //alert(JSON.stringify(this.form));
+        axios.defaults.timeout = 60 * 2 * 1000 // 2 minutos
+        axios.post('http://186.84.210.241:8181/api/predict', {
+          form : this.form
+        }).then(response => {
+          this.loadResponse(response.data)
+        })
+        .catch(function (error) {
+         console.log('Solicitud incorrecta: ',error);
+        });
+
+
+
       },
+
+      loadResponse (list) {
+        this.form.TIPO_SIEMBRA = list['TIPO_SIEMBRA']
+        this.form.SEM_TRATADAS = list['SEM_TRATADAS']
+        this.form.MATERIAL_GENETICO = list['MATERIAL_GENETICO']
+        this.form.CULT_ANT = list['CULT_ANT']
+        this.form.DRENAJE = list['DRENAJE']
+        this.form.METODO_COSECHA = list['METODO_COSECHA']
+        this.form.ALMACENAMIENTO_FINCA = list['ALMACENAMIENTO_FINCA']
+        this.form.DIAS_EN_EMERGER = list['DIAS_EN_EMERGER']
+        this.form.DIAS_EN_EMERGER_A_FLORECER = list['DIAS_EN_EMERGER_A_FLORECER']  
+        this.form.DIAS_EN_FLORECER_A_COSECHAR = list['DIAS_EN_FLORECER_A_COSECHAR']
+        this.form.POBLACION_20DIAS_AJT = list['POBLACION_20DIAS_AJT'] 
+        this.form.ALTURA_LOT = list['ALTURA_LOT']
+        this.form.ContEnfQui_Emer_Flor = list['ContEnfQui_Emer_Flor']
+        this.form.ContEnfQui_Flor_Cose = list['ContEnfQui_Flor_Cose']
+        this.form.ContMalMec_Siem_Emer = list['ContMalMec_Siem_Emer']
+        this.form.ContMalMec_Emer_Flor = list['ContMalMec_Emer_Flor']
+        this.form.ContMalMec_Flor_Cose = list['ContMalMec_Flor_Cose']
+        this.form.ContMalQui_Antes_Siem = list['ContMalQui_Antes_Siem']
+        this.form.ContMalQui_Siem_Emer = list['ContMalQui_Siem_Emer']
+        this.form.ContMalQui_Emer_Flor = list['ContMalQui_Emer_Flor']
+        this.form.ContMalQui_Flor_Cose = list['ContMalQui_Flor_Cose']
+        this.form.ContPlaQui_Antes_Siem = list['ContPlaQui_Antes_Siem']
+        this.form.ContPlaQui_Siem_Emer = list['ContPlaQui_Siem_Emer']
+        this.form.ContPlaQui_Emer_Flor = list['ContPlaQui_Emer_Flor']
+        this.form.ContPlaQui_Flor_Cose = list['ContPlaQui_Flor_Cose']
+        this.form.TotN_Antes_Siem = list['TotN_Antes_Siem']
+        this.form.TotN_Siem_Emer = list['TotN_Siem_Emer']
+        this.form.TotN_Emer_Flor = list['TotN_Emer_Flor']
+        this.form.TotP_Antes_Siem = list['TotP_Antes_Siem']
+        this.form.TotP_Siem_Emer = list['TotP_Siem_Emer']
+        this.form.TotP_Emer_Flor = list['TotP_Emer_Flor']
+        this.form.TotK_Antes_Siem = list['TotK_Antes_Siem']
+        this.form.TotK_Siem_Emer = list['TotK_Siem_Emer'] 
+        this.form.TotK_Emer_Flor = list['TotK_Emer_Flor']  
+        this.form.FerOrg_Emer_Flor = list['FerOrg_Emer_Flor']
+        this.form.FerQui_Antes_Siem = list['FerQui_Antes_Siem']
+        this.form.FerQui_Siem_Emer = list['FerQui_Siem_Emer']
+        this.form.FerQui_Emer_Flor = list['FerQui_Emer_Flor']
+        this.form.PENDIENTE_RASTA = list['PENDIENTE_RASTA']
+        this.form.TERRENO_CIRCUN_RASTA = list['TERRENO_CIRCUN_RASTA']
+        this.form.POSICION_PERFIL_RASTA = list['POSICION_PERFIL_RASTA']
+        this.form.NO_CAPAS_RASTA = list['NO_CAPAS_RASTA']
+        this.form.PH_RASTA = list['PH_RASTA'] 
+        this.form.PEDREG_PERFIL_ROCAS = list['PEDREG_PERFIL_ROCAS']
+        this.form.CAP_ENDURE_RASTA = list['CAP_ENDURE_RASTA']
+        this.form.PROFUND_CAP_ENDURE_RASTA = list['PROFUND_CAP_ENDURE_RASTA']  
+        this.form.ESPESOR_CAP_ENDURE_RASTA = list['ESPESOR_CAP_ENDURE_RASTA']  
+        this.form.MOTEADOS_RASTA = list['MOTEADOS_RASTA']
+        this.form.PROFUND_MOTEADOS_RASTA = list['PROFUND_MOTEADOS_RASTA']
+        this.form.MOTEADOS_MAS70cm_RASTA = list['MOTEADOS_MAS70cm_RASTA'] 
+        this.form.ESTRUCTURA_RASTA = list['ESTRUCTURA_RASTA']
+        this.form.OBSERVA_EROSION_RASTA = list['OBSERVA_EROSION_RASTA']
+        this.form.OBSERVA_MOHO_RASTA = list['OBSERVA_MOHO_RASTA']
+        this.form.OBSERVA_COSTRAS_DURAS_RASTA = list['OBSERVA_COSTRAS_DURAS_RASTA']
+        this.form.SITIO_EXPUESTO_SOL_RASTA = list['SITIO_EXPUESTO_SOL_RASTA']
+        this.form.OBSERVA_COSTRAS_BLANCAS_RASTA = list['OBSERVA_COSTRAS_BLANCAS_RASTA']
+        this.form.OBSERVA_COSTAS_NEGRAS_RASTA = list['OBSERVA_COSTAS_NEGRAS_RASTA']
+        this.form.REGION_SECA_ARIDA_RASTA = list['REGION_SECA_ARIDA_RASTA']
+        this.form.OBSERVA_RAICES_VIVAS_RASTA = list['OBSERVA_RAICES_VIVAS_RASTA']
+        this.form.PROFUND_RAICES_VIVAS_RASTA = list['PROFUND_RAICES_VIVAS_RASTA']
+        this.form.OBSERVA_PLANTAS_PEQUENAS_RASTA = list['OBSERVA_PLANTAS_PEQUENAS_RASTA'] 
+        this.form.OBSERVA_HOJARASCA_MO_RASTA = list['OBSERVA_HOJARASCA_MO_RASTA']
+        this.form.SUELO_NEGRO_BLANDO_RASTA = list['SUELO_NEGRO_BLANDO_RASTA']
+        this.form.CUCHILLO_PRIMER_HTE_RASTA = list['CUCHILLO_PRIMER_HTE_RASTA']
+        this.form.CERCA_RIOS_QUEBRADAS_RASTA = list['CERCA_RIOS_QUEBRADAS_RASTA']
+        this.form.RECUBRIMIENTO_VEGETAL__SUELO_RASTA = list['RECUBRIMIENTO_VEGETAL__SUELO_RASTA']
+        this.form.prof_efectiva = list['prof_efectiva']
+        this.form.dinterno = list['dinterno']
+        this.form.drenaje_externo = list['drenaje_externo']
+        this.form.Porc_A = list['Porc_A']
+        this.form.Porc_Ar = list['Porc_Ar']
+        this.form.Porc_ArA = list['Porc_ArA']
+        this.form.Porc_ArL = list['Porc_ArL'] 
+        this.form.Porc_FrL = list['Porc_FrL'] 
+        this.form.Porc_L = list['Porc_L']
+        this.form.Porc_F = list['Porc_F']
+        this.form.Porc_FAr = list['Porc_FAr']
+        this.form.Porc_FA = list['Porc_FA']
+        this.form.Porc_AF = list['Porc_AF']
+        this.form.Porc_BLANDO = list['Porc_BLANDO']
+        this.form.Porc_DURO = list['Porc_DURO']
+        this.form.Porc_EXT_DURO = list['Porc_EXT_DURO']
+        this.form.Porc_FRIABLE = list['Porc_FRIABLE']
+        this.form.Porc_FIRME = list['Porc_FIRME']
+        this.form.Porc_EXT_FIRME = list['Porc_EXT_FIRME']
+        this.form.Porc_PLASTICO = list['Porc_PLASTICO']
+        this.form.Porc_MUY_PLASTICO = list['Porc_MUY_PLASTICO']
+        this.form.Temp_Max_Avg_Veg = list['Temp_Max_Avg_Veg']
+        this.form.Temp_Min_Avg_Veg = list['Temp_Min_Avg_Veg']
+        this.form.Temp_Avg_Veg = list['Temp_Avg_Veg']
+        this.form.Diurnal_Range_Avg_Veg = list['Diurnal_Range_Avg_Veg']
+        this.form.Sol_Ener_Accu_Veg = list['Sol_Ener_Accu_Veg']
+        this.form.Temp_Max_34_Freq_Veg = list['Temp_Max_34_Freq_Veg'] 
+        this.form.Rain_Accu_Veg = list['Rain_Accu_Veg']
+        this.form.Rain_10_Freq_Veg = list['Rain_10_Freq_Veg']
+        this.form.Rhum_Avg_Veg = list['Rhum_Avg_Veg']
+        this.form.Temp_Max_Avg_For = list['Temp_Max_Avg_For']
+        this.form.Temp_Min_Avg_For = list['Temp_Min_Avg_For']
+        this.form.Temp_Avg_For = list['Temp_Avg_For']
+        this.form.Diurnal_Range_Avg_For = list['Diurnal_Range_Avg_For']
+        this.form.Sol_Ener_Accu_For = list['Sol_Ener_Accu_For']
+        this.form.Temp_Max_34_Freq_For = list['Temp_Max_34_Freq_For'] 
+        this.form.Rain_Accu_For = list['Rain_Accu_For']
+        this.form.Rain_10_Freq_For = list['Rain_10_Freq_For'] 
+        this.form.Rhum_Avg_For = list['Rhum_Avg_For']
+        this.form.Temp_Max_Avg_Mad = list['Temp_Max_Avg_Mad']
+        this.form.Temp_Min_Avg_Mad = list['Temp_Min_Avg_Mad']
+        this.form.Temp_Avg_Mad = list['Temp_Avg_Mad']
+        this.form.Diurnal_Range_Avg_Mad = list['Diurnal_Range_Avg_Mad'] 
+        this.form.Sol_Ener_Accu_Mad = list['Sol_Ener_Accu_Mad']
+        this.form.Temp_Max_34_Freq_Mad = list['Temp_Max_34_Freq_Mad']
+        this.form.Rain_Accu_Mad = list['Rain_Accu_Mad']
+        this.form.Rain_10_Freq_Mad = list['Rain_10_Freq_Mad']
+        this.form.Rhum_Avg_Mad = list['Rhum_Avg_Mad']
+        this.rdt = list['Rhum_Avg_Mad']
+        alert('Revisa la nueva configuración, pronosticamos un rendimiento de '+list['Rhum_Avg_Mad']+' Kg/Ha')
+      }
     }
   }
 </script>
